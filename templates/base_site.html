@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static i18n google_analytics google_ads %}
+
+{% block style %}{% endblock %}
+
+{% block og_site_name %}Testing Google Analytics{% endblock %}
+
+{% block analytics %}
+    {% google_tag_manager %}
+    {% google_analytics %}
+{% endblock %}
+
+{% block no_scripts %}
+    {% gtm_no_script %}
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block main_content %}
+    <div class="container">
+        {% block container %}{% endblock %}
+    </div>
+{% endblock %}
+
+{% block page_body %}{% endblock %}
+
+{% block extra_scripts %}{% endblock %}
+
+{% block vuejs_components %}{% endblock %}
+
+{% block footer %}{% endblock %}

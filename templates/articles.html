@@ -1,0 +1,41 @@
+{% extends "base_site.html" %}
+{% load cache %}
+
+{% block datalayer %}
+<script>
+    const articles = JSON.parse('{{ serialized_articles|safe }}');
+    window.dataLayer && window.dataLayer.push({ event: 'view_item_list', item_list_id: 1, item_list_name: 'Insigths', items: articles });
+</script>
+
+<script>
+    var selectArticle = function (id) {
+        window.dataLayer && window.dataLayer.push({
+            event: 'select_content',
+            content_type: 'article',
+            content_id: id
+        })
+    }
+</script>
+{% endblock %}
+
+{% block title %}Articles{% endblock %}
+
+{% block container %}
+<section class="articles my-5">
+    <div class="row">
+        {% for article in articles %}
+        <article class="col-md-3">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5>
+                        <a onclick="selectArticle('{{article.id}}')" href="{% url 'article' article.id %}">
+                            {{ article.title }}
+                        </a>
+                    </h5>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

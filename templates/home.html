@@ -1,0 +1,25 @@
+{% extends "base_site.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block container %}
+    <section class="my-5">
+        <div class="col-md-4 offset-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <a href="{% url 'articles' %}" id="link-see-articles" class="btn btn-lg btn-primary">
+                        Articles
+                    </a>
+                </div>
+            </div>
+
+            <form id="newsletter" method="post" action="{% url 'subscribe' %}" enctype="multipart/form-data" class="card">
+                {% csrf_token %}
+                <div class="card-body">
+                    <input type="email" name="email" id="email" placeholder="Email" class="form-control mb-2">
+                    <button type="submit" class="btn btn-rounded btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}
