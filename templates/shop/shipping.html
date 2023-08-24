@@ -1,4 +1,4 @@
-{% extends "base_site.html" %}
+{% extends "layouts/base_checkout.html" %}
 
 {% block datalayer %}
 <script>
@@ -7,41 +7,93 @@
         value: 24,
         ...items
     })
-    gtag('event', 'add_shipping_info', {
-        value: 24,
-        ...items
+    gtag('event', 'checkout', {
+        name: 'shipping',
+        step: 1
     })
+    // gtag('event', 'add_shipping_info', {
+    //     value: 24,
+    //     ...items
+    // })
 </script>
 {% endblock %}
 
 {% block title %}Shipping{% endblock %}
 
-{% block container %}
-<section class="my-5">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Address</h3>
-                </div>
-            </div>
+{% block left %}
+<div class="card shadow-sm">
+    <shipment />
+</div>
 
-            <div class="card mt-2">
-                <div class="card-body">
-                    <h3>Payment selection</h3>
-                </div>
-            </div>
-        </div>
+<div class="card mt-2 shadow-sm">
+    <div class="card-body">
+        <h3>Payment selection</h3>
+    </div>
+</div>
+{% endblock %}
 
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-body">
-                    <a id="cta-payment" href="{% url 'payment' %}" class="btn btn-lg btn-primary btn-block">
-                        Passer à la caisse
-                    </a>
-                </div>
-            </div>
+{% block right %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <a id="cta-payment" href="{% url 'payment' %}" class="btn btn-lg btn-primary btn-block btn-rounded shadow-none">
+            Passer à la caisse
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="shipment" type="text/x-template">
+    <div v-if="addressComplete" class="card-body">
+        <h3 class="mb-3">Address</h3>
+
+        <div class="p-3 bg-light rounded-1" @click="addressComplete=false">
+            <p>[[ shippingInfo.address ]]</p>
         </div>
     </div>
-</section>
+
+    <div v-else class="card-body">
+        <h3 class="mb-3">Address</h3>
+        <input v-model="shippingInfo.address" class="form-control p-3" type="text" autocomplete="street-address" placeholder="Address" id="address">
+        
+        <button type="button" class="btn btn-sm btn-dark btn-rounded shadow-none mt-3" @click="handleAddressComplete">
+            Sauvegarder
+        </button>
+    </div>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const Shipment = {
+        name: 'Shipment',
+        template: '#shipment',
+        data () {
+            return {
+                shippingInfo: {
+                    address: null
+                },
+                addressComplete: false
+            }
+        },
+        methods: {
+            async handleAddressComplete (item) {
+                try {
+                    const response = await this.$http.post("{% url 'save_address' %}", this.shippingInfo)
+                    if (response.data.state) {
+                        gtag('event', 'add_shipping_info', {
+                            value: 24,
+                            ...items
+                        })
+                        this.addressComplete = true
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+    }
+
+    app.component('Shipment', Shipment)
+</script>
 {% endblock %}

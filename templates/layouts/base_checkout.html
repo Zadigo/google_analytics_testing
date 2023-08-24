@@ -1,0 +1,15 @@
+{% extends "base_site.html" %}
+
+{% block container %}
+<section id="{% block section_name %}{% endblock %}" class="my-5">
+    <div class="row">
+        <div class="col-md-5 offset-md-2">
+            {% block left %}{% endblock %}
+        </div>
+
+        <div class="col-md-3">
+            {% block right %}{% endblock %}
+        </div>
+    </div>
+</section>
+{% endblock %}

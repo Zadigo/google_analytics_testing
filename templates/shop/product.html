@@ -13,6 +13,21 @@
         ]
     })
 </script>
+
+<script>
+    const selectArticle = function (index, id) {
+        gtag('event', 'select_item', {
+            event: 'select_item',
+            index: index,
+            item_id: id,
+            item_name: null,
+            item_category: 'article',
+            item_list_id: 1,
+            item_list_name: 'Recommendations',
+            items: articles[index]
+        })
+    }
+</script>
 {% endblock %}
 
 {% block title %}{{ article.title }}{% endblock %}
@@ -20,11 +35,125 @@
 {% block container %}
 <section class="articles my-5">
     <div class="row">
-        <div class="card">
-            <div class="card-body">
-                {{ article.id }}
+        <div class="col-sm-12 col-md-7">
+            <img src="https://placehold.co/800x800" alt="Article 1" class="img-fluid">
+            <div class="row mt-1 gx-1">
+                <div class="col-6">
+                    <img src="https://placehold.co/400x400" alt="Article 1" class="img-fluid">
+                </div>
+                <div class="col-6">
+                    <img src="https://placehold.co/400x400" alt="Article 1" class="img-fluid">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <h1>Some product</h1>
+            <div class="price">
+                <h3 class="fw-bold">134€</h3>
+            </div>
+            
+            <div class="actions">
+                <button-add-to-cart />
+            </div>
+            
+            <div class="share">
+                <button-share />
             </div>
         </div>
     </div>
+
+    <div class="row mt-5">
+        <h2 class="mt-5 mb-3">Recommendations</h2>
+
+        {% for article in "1234"|make_list %}
+        <article class="col-md-3">
+            <div class="card shadow-sm mb-2">
+                <a onclick="selectArticle('{{ forloop.counter }}', '{{article.id}}')" class="link-dark" href="{% url 'article' article %}">
+                    <img src="https://placehold.co/600x400" class="card-img-top" alt="Image {{ forloop.counter }}">
+                </a>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ article.title }}</h5>
+                    <!-- <button type="button" class="btn btn-sm btn-rounded btn-primary shadow-none">Cart</button> -->
+                    <button-add-to-cart item="{{ article }}" :key="{{ forloop.counter }}" />
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="button-share" type="text/x-template">
+    <div>
+        <button type="button" class="btn btn-dark btn-rounded" @click="handleShare">
+            Instagram
+        </button>
+    </div>
+</script>
+
+<script id="button-add-cart" type="text/x-template">
+    <div>
+        <button type="button" class="btn btn-block btn-dark btn-rounded" @click="handleAddToCart">
+            Add to cart
+        </button>
+        <button type="button" class="btn btn-block btn-danger btn-rounded" @click="handleAddToLikes">
+            Add to likes
+        </button>
+    </div>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const ButtonShare = {
+        name: 'ButtonShare',
+        template: '#button-share',
+        methods: {
+            handleShare () {
+                gtag('event', 'share', {
+                    method: 'Twitter',
+                    item_id: 1
+                })
+            }
+        }
+    }
+    
+    const ButtonAddToCart = {
+        name: 'ButtonAddToCart',
+        template: '#button-add-cart',
+        methods: {
+            async handleAddToCart () {
+                try {
+                    const data = await this.$http.post("{% url 'add_to_cart' %}", { id: '1' })
+                    this.sendEvent('add_to_cart')
+                } catch (e) {
+                    console.error(e)
+                }
+            },
+            async handleAddToLikes () {
+                try {
+                    const data = await this.$http.post("{% url 'add_to_cart' %}", { id: '1' })
+                    this.sendEvent('add_to_wishlist')
+                } catch (e) {
+                    console.error(e)
+                }
+            },
+            sendEvent (name) {
+                gtag('event', name, {
+                    value: 15,
+                    items: [
+                        {
+                            item_id: 1
+                        }
+                    ]
+                })
+            }
+        }
+    }
+
+    app.component('ButtonAddToCart', ButtonAddToCart)
+    app.component('ButtonShare', ButtonShare)
+</script>
 {% endblock %}

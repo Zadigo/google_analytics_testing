@@ -1,4 +1,4 @@
-{% extends "base_site.html" %}
+{% extends "layouts/base_checkout.html" %}
 
 {% block datalayer %}
 <script>
@@ -12,26 +12,75 @@
 
 {% block title %}Cart{% endblock %}
 
-{% block container %}
-    <section class="my-5">
-        <div class="row">
-            <div class="col-md-5">
-                <div class="card">
-                    <div class="card-body">
-                        {{ i }}
-                    </div>
-                </div>
+{% block left %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="list-group">
+            {% for i in "123"|make_list %}
+            <div class="list-group-item list-group-item-action p-4 d-flex justify-content-between align-items-center">
+                <a href="{% url 'article' i %}" class="fw-bold">Article {{ i }}</a>
+                <remove-from-cart-button item-id="{{ i }}" :key="i" />
             </div>
-
-            <div class="col-md-5">
-                <div class="card">
-                    <div class="card-body">
-                        <a id="cta-shipping" href="{% url 'shipping' %}" class="btn btn-lg btn-primary btn-block">
-                            Passer à la caisse
-                        </a>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    </section>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block right %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <a id="cta-shipping" href="{% url 'shipping' %}" class="btn btn-lg btn-primary btn-block btn-rounded shadow-none">
+            Passer à la caisse
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="remove" type="text/x-template">
+    <button type="button" class="btn btn-sm btn-rounded btn-danger shadow-none" @click="handleRemoveFromCart">
+        <i class="fa-solid fa-trash"></i>
+    </button>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const RemoveFromCartButton = {
+        name: 'RemoveFromCartButton',
+        template: '#remove',
+        props: {
+            itemId: {
+                type: String
+            }
+        },
+        methods: {
+            async handleRemoveFromCart () {
+                try {
+                    const response = await this.$http.post("{% url 'cart_remove' %}", { id: this.itemId })
+                    if (response.data.state) {
+                        gtag('event', 'remove_from_cart', {
+                            value: 134,
+                            items: [
+                                {
+                                    index: 0,
+                                    item_id: 'SKU_12345',
+                                    item_name: 'Stan and Friends Tee',
+                                    price: 9.99,
+                                    quantity: 1
+                                }
+                            ]
+                        })
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+    }
+
+    app.component('RemoveFromCartButton', RemoveFromCartButton)
+</script>
 {% endblock %}

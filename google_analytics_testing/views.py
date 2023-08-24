@@ -1,15 +1,19 @@
 import json
-from functools import lru_cache
 import random
 import secrets
-from django.http import JsonResponse
+from functools import lru_cache
+from typing import Any, Dict
+from django import http
 
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template import Context
+from django.utils.decorators import method_decorator
 from django.urls import reverse
-from django.views.decorators.http import require_POST, require_GET
-from django.views.generic import TemplateView
 from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_GET, require_POST
+from django.views.generic import TemplateView
+
 from google_analytics_testing import forms
 
 
@@ -66,54 +70,61 @@ def cart_add_view(request, **kwargs):
     return JsonResponse({'state': True})
 
 
+class CustomerOrdersView(TemplateView):
+    template_name = 'shop/customer_orders.html'
+
+
 # Ecommmerce process > Cart > checkout : shipping -> payment > Success
 
-@require_GET
-def cart_view(request, **kwargs):
-    context = {
-        'value': random.randrange(20, 2600),
-        'items': [
-            {
-                'item_id': random.randrange(0, 20),
-                'item_name': 'Stan and Friends Tee',
-                'price': 35,
-                'quantity': random.randrange(1, 5)
-            }
-        ]
-    }
-    return render(request, 'shop/cart.html', {'cart': transform_dict(context)})
+class BaseCheckoutView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        data = {
+            'value': random.randrange(20, 2600),
+            'items': [
+                {
+                    'item_id': random.randrange(0, 20),
+                    'item_name': 'Stan and Friends Tee',
+                    'price': 35,
+                    'quantity': random.randrange(1, 5)
+                }
+            ]
+        }
+        context['cart'] = transform_dict(data)
+        return context
 
 
-@require_GET
-def shipping_view(request, **kwargs):
-    context = {
-        'value': random.randrange(20, 2600),
-        'items': [
-            {
-                'item_id': random.randrange(0, 20),
-                'item_name': 'Stan and Friends Tee',
-                'price': 35,
-                'quantity': random.randrange(1, 5)
-            }
-        ]
-    }
-    return render(request, 'shop/shipping.html', {'cart': transform_dict(context)})
+class CartView(BaseCheckoutView):
+    template_name = 'shop/cart.html'
+    http_method_names = ['get']
 
 
-@require_GET
-def payment_view(request, **kwargs):
-    context = {
-        'value': random.randrange(20, 2600),
-        'items': [
-            {
-                'item_id': random.randrange(0, 20),
-                'item_name': 'Stan and Friends Tee',
-                'price': 35,
-                'quantity': random.randrange(1, 5)
-            }
-        ]
-    }
-    return render(request, 'shop/payment.html', {'ecommerce': transform_dict(context)})
+class ShippingView(BaseCheckoutView):
+    template_name = 'shop/shipping.html'
+    http_method_names = ['get']
+
+    @method_decorator(sensitive_post_parameters('address'))
+    def dispatch(self, request, *args: Any, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class PaymentView(BaseCheckoutView):
+    template_name = 'shop/payment.html'
+    http_method_names = ['get']
+
+
+class PaymentSuccessView(BaseCheckoutView):
+    template_name = 'shop/purchase_success.html'
+    http_method_names = ['get']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'transaction_id': secrets.token_hex(10),
+            'tax': 4.9,
+            'shipping': 5.99,
+        })
+        return context
 
 
 @require_POST
@@ -134,26 +145,16 @@ def purchase_view(request, **kwargs):
     return JsonResponse({'state': True, 'purchase_info': purchase_info})
 
 
-@require_GET
-def purchase_success_view(request, **kwargs):
-    context = Context()
-    context.push({
-        'transaction_id': secrets.token_hex(10),
-        'value': random.randrange(20, 2600),
-        'tax': 4.9,
-        'shipping': 5.99,
-        'items': [
-            {
-                'item_id': 1,
-                'item_name': 'Swimsuit',
-                'index': 1,
-                'item_brand': 'My Brand',
-                'price': 15,
-                'quantity': 1
-            }
-        ]
-    })
-    result = context.flatten()
-    result = json.dumps(result)
-    result = {'purchase': result}
-    return render(request, 'shop/purchase_success.html', result)
+@require_POST
+def remove_from_cart_view(request, **kwargs):
+    return JsonResponse({'state': True})
+
+
+@require_POST
+def save_address_view(request, **kwargs):
+    return JsonResponse({'state': True})
+
+
+@require_POST
+def refund_view(request, **kwargs):
+    return JsonResponse({'state': True})

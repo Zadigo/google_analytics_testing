@@ -1,6 +1,12 @@
 {% extends "base_site.html" %}
 
 {% block datalayer %}
+<script>
+    gtag('event', 'checkout', {
+        name: 'payment',
+        step: 2
+    })
+</script>
 {% endblock %}
 
 {% block title %}Cart{% endblock %}
@@ -9,29 +15,31 @@
 <section class="my-5">
     <div class="row">
         <div class="col-md-4 offset-md-4">
-            <form id="payment" class="card my-2" action="{% url 'start_payment' %}" method="post" enctype="multipart/form-data">
+            <form id="form-payment" class="card my-2" action="{% url 'start_payment' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="card-body">
-                    <input type="text" autocomplete="cc-number" placeholder="Card number" class="form-control">
-                    <div class="d-flex justify-content-between gap-2 my-2">
-                        <input type="text" autocomplete="cc-exp" placeholder="Expiry" class="form-control">
-                        <input type="text" autocomplete="cc-csc" placeholder="CSC" class="form-control">
-                    </div>
-            
-                    <button-payment />
-                </div>
+                <button-payment />
             </form>
         </div>
     </div>
 </section>
 {% endblock %}
 
-
 {% block extra_scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+
 <script id="payment" type="text/x-template">
-    <button id="cta-payment" type="button" class="btn btn-rounded btn-primary mt-3 btn-block shadow-none" @click="handlePayment">
-        Cart
-    </button>
+    <div class="card-body">
+        <input type="text" autocomplete="cc-number" placeholder="Card number" class="form-control">
+
+        <div class="d-flex justify-content-between gap-2 my-2">
+            <input type="text" autocomplete="cc-exp" placeholder="Expiry" class="form-control">
+            <input type="text" autocomplete="cc-csc" placeholder="CSC" class="form-control">
+        </div>
+
+        <button id="cta-payment" type="button" class="btn btn-rounded btn-primary mt-3 btn-block shadow-none" @click="handlePayment">
+            Cart
+        </button>
+    </div>
 </script>
 {% endblock %}
 
@@ -42,12 +50,18 @@
         template: '#payment',
         data () {
             return {
+                stripe: Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx'),
+                elements: null,
                 cart: JSON.parse('{{ ecommerce|safe }}')
             }
         },
         methods: {
             async handlePayment(item) {
                 try {
+                    // this.elements.submit().then((data) => {
+                    //     console.log(data)
+                    // })
+
                     const response = await this.$http.post("{% url 'start_payment' %}")
                     if (response.data.state) {
                         gtag('event', 'add_payment_info', {
@@ -60,6 +74,14 @@
                     console.error(e)
                 }
             }
+        },
+        mounted () {
+            this.elements = this.stripe.elements({
+                mode: 'payment',
+                currency: 'eur',
+                amount: 1099,
+                clientSecret: 'CLIENT_SECRET',
+            })
         }
     }
 

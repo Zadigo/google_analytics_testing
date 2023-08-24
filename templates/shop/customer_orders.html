@@ -1,0 +1,78 @@
+{% extends "base_site.html" %}
+
+{% block container %}
+<section class="my-5">
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for order in "1234"|make_list %}
+                        <div class="list-group-item p-4">
+                            <refund-button item-id="{{ order }}" />
+                        </div>                            
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="refund" type="text/x-template">
+    <button type="button" class="btn btn-sm btn-primary btn-rounded shadow-none" @click="handleRefund">
+        Refund
+    </button>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const RefundButton = {
+        name: 'RefundButton',
+        template: '#refund',
+        methods: {
+            async handleRefund (item) {
+                try {
+                    const response = await this.$http.post("{% url 'refund' %}", { id: item})
+                    if (response.data.state) {
+                        gtag('event', 'refund', {
+                            transaction_id: 'T_12345',
+                            value: 12.21,
+                            shipping: 3.33,
+                            tax: 1.11,
+                            items: [
+                                {
+                                    item_id: "SKU_12345",
+                                    item_name: "Stan and Friends Tee",
+                                    affiliation: "Google Merchandise Store",
+                                    discount: 2.22,
+                                    index: 0,
+                                    item_brand: "My brand",
+                                    item_category: "Apparel",
+                                    item_category2: "Adult",
+                                    item_category3: "Shirts",
+                                    item_category4: "Crew",
+                                    item_category5: "Short sleeve",
+                                    item_list_id: 'customer_orders',
+                                    item_list_name: 'Customer orders',
+                                    item_variant: 'green',
+                                    price: 9.99,
+                                    quantity: 1
+                                }
+                            ]
+                        });
+                        this.addressComplete = true
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+    }
+
+    app.component('RefundButton', RefundButton)
+</script>
+{% endblock %}
