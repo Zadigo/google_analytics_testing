@@ -55,7 +55,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries': {
-                'google': 'django_analytics.templatetags.google_analytics'
+                'google': 'django_analytics.templatetags.google_analytics',
+                'performance': 'django_analytics.templatetags.performance'
             }
         },
     },

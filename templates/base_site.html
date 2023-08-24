@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static i18n google_analytics google_ads %}
+{% load static i18n google_analytics google_ads performance %}
 
 {% block style %}{% endblock %}
 
@@ -8,6 +8,8 @@
 {% block analytics %}
     {% google_tag_manager %}
     {% google_analytics %}
+
+    {% page_performance %}
 {% endblock %}
 
 {% block no_scripts %}
