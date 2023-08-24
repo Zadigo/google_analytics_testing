@@ -1,3 +1,4 @@
+from django_analytics.events.google import LoginEvent
 import json
 import random
 import secrets
@@ -158,3 +159,15 @@ def save_address_view(request, **kwargs):
 @require_POST
 def refund_view(request, **kwargs):
     return JsonResponse({'state': True})
+
+
+# Accounts
+
+class Login(TemplateView):
+    template_name = 'accounts/login.html'
+
+    def post(self, request, **kwargs):
+        instance = LoginEvent('G-C5VLPRS4QY', debug=True, user_id=1)
+        instance.send()
+        print(instance.errors)
+        return redirect(reverse('home'))

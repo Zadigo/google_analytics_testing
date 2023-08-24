@@ -60,35 +60,41 @@ class BaseProtocole:
         always call this when implementing there own
         parameters
 
-        `v`: version
-        `tid`: the Google Analytics tracking ID
-        `cid`: the anonymous (555) or actual user ID
-        `t`: the hit type
+        - `v`: version
+        - `tid`: the Google Analytics tracking ID
+        - `cid`: the anonymous (555) or actual user ID
+        - `t`: the hit type
         """
         params = {
             'v': 1,
             'tid': self.analytics_tag,
             'cid': self.user_id,
+            'ec': None,
             't': self.hit_type,
             **extra_params
         }
         return params
 
     def send(self):
-        response = requests.post(url=self.url())
-        if response.status_code == 200:
-            try:
-                data = response.json()
-            except:
-                pass
-            else:
-                truth_array = []
-                results = data['hitParsingResult']
-                for result in results:
-                    truth_array.append(result['valid'])
-                    for message in result['parserMessage']:
-                        self.errors.append(message)
-                self.is_successful = all(truth_array)
+        try:
+            response = requests.post(url=self.url())
+        except Exception as e:
+            print(e)
+        else:
+            print(response.content)
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                except:
+                    pass
+                else:
+                    truth_array = []
+                    results = data['hitParsingResult']
+                    for result in results:
+                        truth_array.append(result['valid'])
+                        for message in result['parserMessage']:
+                            self.errors.append(message)
+                    self.is_successful = all(truth_array)
 
 
 class BaseEvent(BaseProtocole):
@@ -125,6 +131,10 @@ class RefundEvent(EnhancedEcommerceMixin, BaseEvent):
     def __init__(self, analytics_tag, transaction_id, **kwargs):
         self.transaction_id = transaction_id
         super().__init__(analytics_tag, **kwargs)
+
+
+class LoginEvent(BaseEvent):
+    event_action = 'login'
 
 
 # event = RefundEvent('G-C5VLPRS4QY', 'something_here', debug=True)

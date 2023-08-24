@@ -1,0 +1,21 @@
+{% extends "layouts/base_authentication.html" %}
+{% load i18n static %}
+
+{% block title %}
+{% trans "Login" %}
+{% endblock %}
+
+{% block form_id %}form-login{% endblock %}
+
+{% block form_method %}{% url 'login' %}{% endblock %}
+
+{% block authentication_content %}
+<input id="email" name="email" placeholder="{% trans 'Email' %}" class="form-control p-3 mb-2" type="email" autocomplete="email" />
+<input id="password" name="password" placeholder="{% trans 'Password' %}" class="form-control p-3" type="password" autocomplete="current-password" class="my-2" />
+
+<button id="cta-login" type="submit" class="btn btn-lg btn-dark btn-block btn-rounded mt-5">
+    {% trans "Se connecter" %}
+</button>
+
+<div class="mt-3"></div>
+{% endblock %}
