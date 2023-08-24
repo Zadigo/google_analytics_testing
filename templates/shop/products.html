@@ -1,0 +1,121 @@
+{% extends "base_site.html" %}
+{% load cache %}
+
+{% block datalayer %}
+<script>
+    const articles = JSON.parse('{{ serialized_articles|safe }}');
+    gtag('event', 'view_items_list', {
+        item_list_id: 1,
+        item_list_name: 'Insigths',
+        items: articles
+    })
+</script>
+
+<script>
+    const selectArticle = function (index, id) {
+        gtag('event', 'select_item', {
+            event: 'select_item',
+            index: index,
+            item_id: id,
+            item_name: null,
+            item_category: 'article',
+            item_list_id: 1,
+            item_list_name: 'Insights',
+            items: articles[index]
+        })
+    }
+</script>
+{% endblock %}
+
+{% block title %}Articles{% endblock %}
+
+{% block container %}
+<section class="articles my-5">
+    <div class="row gx-5">
+        <div class="col-12">
+            <a id="cta-view-cart" href="{% url 'cart' %}" class="btn btn-info btn-lg btn-rounded">
+                View cart
+            </a>
+        </div>
+
+        <div class="col-10">
+            <div class="row">
+                {% for article in articles %}
+                <article class="col-md-3">
+                    <div class="card shadow-sm mb-2">
+                        <a onclick="selectArticle('{{ forloop.counter }}', '{{article.id}}')" class="link-dark"
+                            href="{% url 'article' article.id %}">
+                            <img src="https://placehold.co/600x400" class="card-img-top"
+                                alt="Image {{ forloop.counter }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ article.title }}</h5>
+                            <p class="card-text fw-light">Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                                Architecto incidunt itaque possimus.</p>
+                            <!-- <button type="button" class="btn btn-sm btn-rounded btn-primary shadow-none">Cart</button> -->
+                            <button-add-to-cart item="{{ article }}" :key="{{ forloop.counter }}" />
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    Promo
+                </div>
+            </div>
+        </div>
+    </div>
+    {% comment %}
+    {% cache 60 articles %}
+    {% endcache %}
+    {% endcomment %}
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script id="cart" type="text/x-template">
+    <button id="add-to-cart" type="button" class="btn btn-sm btn-rounded btn-primary shadow-none" @click="handleAddToCart">
+        Cart
+    </button>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const ButtonAddToCart = {
+        name: 'ButtonAddToCart',
+        template: '#cart',
+        props: {
+            item: {
+                type: String,
+                required: true
+            }
+        },
+        computed: {
+            article() {
+                return JSON.parse(this.item.replace(/'/g, '"'))
+            }
+        },
+        methods: {
+            async handleAddToCart(item) {
+                try {
+                    const data = await this.$http.post("{% url 'add_to_cart' %}", { id: this.article.id })
+                    gtag('event', 'add_to_cart', {
+                        currency: 'EUR',
+                        value: 15,
+                        items: [this.article]
+                    })
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+    }
+
+    app.component('ButtonAddToCart', ButtonAddToCart)
+</script>
+{% endblock %}

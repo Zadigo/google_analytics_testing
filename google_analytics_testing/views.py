@@ -29,7 +29,7 @@ def create_articles():
 
 
 class ArticlesView(TemplateView):
-    template_name = 'articles.html'
+    template_name = 'shop/products.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -40,7 +40,7 @@ class ArticlesView(TemplateView):
 
 
 class ArticleView(TemplateView):
-    template_name = 'article.html'
+    template_name = 'shop/product.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -81,7 +81,7 @@ def cart_view(request, **kwargs):
             }
         ]
     }
-    return render(request, 'cart.html', {'cart': transform_dict(context)})
+    return render(request, 'shop/cart.html', {'cart': transform_dict(context)})
 
 
 @require_GET
@@ -97,7 +97,7 @@ def shipping_view(request, **kwargs):
             }
         ]
     }
-    return render(request, 'shipping.html', {'cart': transform_dict(context)})
+    return render(request, 'shop/shipping.html', {'cart': transform_dict(context)})
 
 
 @require_GET
@@ -113,14 +113,25 @@ def payment_view(request, **kwargs):
             }
         ]
     }
-    return render(request, 'payment.html', {'ecommerce': transform_dict(context)})
+    return render(request, 'shop/payment.html', {'ecommerce': transform_dict(context)})
 
 
 @require_POST
 @sensitive_post_parameters()
 def purchase_view(request, **kwargs):
     """Processes the payment"""
-    return JsonResponse({'state': True})
+    purchase_info = {
+        'value': random.randrange(20, 2600),
+        'items': [
+            {
+                'item_id': random.randrange(0, 20),
+                'item_name': 'Stan and Friends Tee',
+                'price': 35,
+                'quantity': random.randrange(1, 5)
+            }
+        ]
+    }
+    return JsonResponse({'state': True, 'purchase_info': purchase_info})
 
 
 @require_GET
@@ -145,4 +156,4 @@ def purchase_success_view(request, **kwargs):
     result = context.flatten()
     result = json.dumps(result)
     result = {'purchase': result}
-    return render(request, 'purchase_success.html', result)
+    return render(request, 'shop/purchase_success.html', result)

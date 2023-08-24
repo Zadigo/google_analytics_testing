@@ -1,8 +1,6 @@
 {% extends "base_site.html" %}
 
 {% block datalayer %}
-<script>
-</script>
 {% endblock %}
 
 {% block title %}Cart{% endblock %}
@@ -52,6 +50,10 @@
                 try {
                     const response = await this.$http.post("{% url 'start_payment' %}")
                     if (response.data.state) {
+                        gtag('event', 'add_payment_info', {
+                            payment_type: 'Credit Card',
+                            ...response.data.purchase_info
+                        })
                         window.location = "{% url 'payment_sucess' %}"
                     }
                 } catch (e) {
