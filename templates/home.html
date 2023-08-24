@@ -13,7 +13,20 @@
                 </div>
             </div>
 
-            <form id="newsletter" method="post" action="{% url 'subscribe' %}" enctype="multipart/form-data" class="card">
+            <form id="payment" class="card my-2" action="{% url 'purchase' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    <input type="text" autocomplete="cc-number" placeholder="Card number" class="form-control">
+                    <div class="d-flex justify-content-between gap-2 my-2">
+                        <input type="text" autocomplete="cc-exp" placeholder="Expiry" class="form-control">
+                        <input type="text" autocomplete="cc-csc" placeholder="CSC" class="form-control">
+                    </div>
+
+                    <button type="submit" class="btn btn-rounded btn-primary mt-3 btn-block">Payer</button>
+                </div>
+            </form>
+
+            <form id="newsletter" class="card" method="post" action="{% url 'subscribe' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="card-body">
                     <input type="email" name="email" id="email" placeholder="Email" class="form-control mb-2">

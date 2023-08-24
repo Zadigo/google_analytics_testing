@@ -1,0 +1,23 @@
+{% extends "base_site.html" %}
+
+{% block datalayer %}
+<script>
+    gtag('event', 'purchase', JSON.parse('{{ purchase|safe }}'))
+</script>
+{% endblock %}
+
+{% block container %}
+    <section class="success">
+        <div class="row">
+            <div class="col-sm-12 col-md-5 offset-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <a id="cta-home" href="{% url 'home' %}" class="btn btn-secondary btn-lg btn-rounded">
+                            Back to home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

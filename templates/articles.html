@@ -4,15 +4,24 @@
 {% block datalayer %}
 <script>
     const articles = JSON.parse('{{ serialized_articles|safe }}');
-    window.dataLayer && window.dataLayer.push({ event: 'view_item_list', item_list_id: 1, item_list_name: 'Insigths', items: articles });
+    gtag('event', 'view_items_list', {
+        item_list_id: 1,
+        item_list_name: 'Insigths',
+        items: articles
+    })
 </script>
 
 <script>
-    var selectArticle = function (id) {
-        window.dataLayer && window.dataLayer.push({
-            event: 'select_content',
-            content_type: 'article',
-            content_id: id
+    const selectArticle = function (index, id) {
+        gtag('event', 'select_item', {
+            event: 'select_item',
+            index: index,
+            item_id: id,
+            item_name: null,
+            item_category: 'article',
+            item_list_id: 1,
+            item_list_name: 'Insights',
+            items: articles[index]
         })
     }
 </script>
@@ -28,7 +37,7 @@
             <div class="card mb-2">
                 <div class="card-body">
                     <h5>
-                        <a onclick="selectArticle('{{article.id}}')" href="{% url 'article' article.id %}">
+                        <a onclick="selectArticle('{{ forloop.counter }}', '{{article.id}}')" href="{% url 'article' article.id %}">
                             {{ article.title }}
                         </a>
                     </h5>
