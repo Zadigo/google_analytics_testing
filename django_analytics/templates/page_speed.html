@@ -30,7 +30,7 @@
                 if (navigationEntries.length > 0) {
                     var entry = navigationEntries[0]
                     timingData = {
-                        page_load_time: entry.loadEventStart - entry.fetchStart,
+                        page_load_time: entry.fetchStart - entry.loadEventStart,
                         page_download_time: entry.responseEnd - entry.responseStart,
                         dns_time: entry.domainLookupEnd - entry.domainLookupStart,
                         server_response_time: entry.responseStart - entry.requestStart,
