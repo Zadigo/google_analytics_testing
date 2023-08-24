@@ -127,7 +127,7 @@
             axios.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token }}'
 
             const client = axios.create({
-                baseURL: '{% if debug %}http://127.0.0.1:8000{% else %}http://gency313.fr{% endif %}',
+                baseURL: 'http://127.0.0.1:8000',
                 timeout: 5000,
                 withCredentials: true
             })
@@ -151,8 +151,6 @@
                     data () {
                         return {
                             email: null,
-                            showMeetingModal: false,
-                            showContactModal: false,
                             showLanguageModal: false
                         }
                     },
@@ -170,10 +168,6 @@
                 })
 
                 // app.use(router)
-
-                // app.use((app) => {
-                //     app.config.globalProperties.http = axios
-                // })
             </script>
 
             {% block vuejs_components %}{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base_site.html" %}
+
+{% block datalayer %}
+<script>
+    const items = JSON.parse('{{ cart|safe }}')
+    gtag('event', 'view_cart', {
+        value: 24,
+        ...items
+    })
+</script>
+{% endblock %}
+
+{% block title %}Cart{% endblock %}
+
+{% block container %}
+    <section class="my-5">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-body">
+                        {{ i }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-body">
+                        <a id="cta-shipping" href="{% url 'shipping' %}" class="btn btn-lg btn-primary btn-block">
+                            Passer à la caisse
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

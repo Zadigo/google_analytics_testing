@@ -1,0 +1,66 @@
+{% extends "base_site.html" %}
+
+{% block datalayer %}
+<script>
+</script>
+{% endblock %}
+
+{% block title %}Cart{% endblock %}
+
+{% block container %}
+<section class="my-5">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <form id="payment" class="card my-2" action="{% url 'start_payment' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body">
+                    <input type="text" autocomplete="cc-number" placeholder="Card number" class="form-control">
+                    <div class="d-flex justify-content-between gap-2 my-2">
+                        <input type="text" autocomplete="cc-exp" placeholder="Expiry" class="form-control">
+                        <input type="text" autocomplete="cc-csc" placeholder="CSC" class="form-control">
+                    </div>
+            
+                    <button-payment />
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script id="payment" type="text/x-template">
+    <button id="cta-payment" type="button" class="btn btn-rounded btn-primary mt-3 btn-block shadow-none" @click="handlePayment">
+        Cart
+    </button>
+</script>
+{% endblock %}
+
+{% block vuejs_components %}
+<script>
+    const ButtonPayment = {
+        name: 'ButtonPayment',
+        template: '#payment',
+        data () {
+            return {
+                cart: JSON.parse('{{ ecommerce|safe }}')
+            }
+        },
+        methods: {
+            async handlePayment(item) {
+                try {
+                    const response = await this.$http.post("{% url 'start_payment' %}")
+                    if (response.data.state) {
+                        window.location = "{% url 'payment_sucess' %}"
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+    }
+
+    app.component('ButtonPayment', ButtonPayment)
+</script>
+{% endblock %}

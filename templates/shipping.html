@@ -1,0 +1,47 @@
+{% extends "base_site.html" %}
+
+{% block datalayer %}
+<script>
+    const items = JSON.parse('{{ cart|safe }}')
+    gtag('event', 'begin_checkout', {
+        value: 24,
+        ...items
+    })
+    gtag('event', 'add_shipping_info', {
+        value: 24,
+        ...items
+    })
+</script>
+{% endblock %}
+
+{% block title %}Shipping{% endblock %}
+
+{% block container %}
+<section class="my-5">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Address</h3>
+                </div>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-body">
+                    <h3>Payment selection</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <a id="cta-payment" href="{% url 'payment' %}" class="btn btn-lg btn-primary btn-block">
+                        Passer à la caisse
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

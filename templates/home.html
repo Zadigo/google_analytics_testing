@@ -13,7 +13,7 @@
                 </div>
             </div>
 
-            <form id="payment" class="card my-2" action="{% url 'purchase' %}" method="post" enctype="multipart/form-data">
+            <form id="payment" class="card my-2" action="{% url 'start_payment' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="card-body">
                     <input type="text" autocomplete="cc-number" placeholder="Card number" class="form-control">
